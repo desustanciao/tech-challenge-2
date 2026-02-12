@@ -38,7 +38,7 @@ jobs:
       run: docker build --target production -t app:latest .
 
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@0.33.1
+      uses: aquasecurity/trivy-action@v0.33.1
       with:
         image-ref: python:3.12-slim-bookworm
         format: table
