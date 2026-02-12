@@ -21,7 +21,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE }}
-        aws-region: ${{ variables.AWS_REGION }}
+        aws-region: ${{ env.AWS_REGION }}
 
     - name: Set up Python
       uses: actions/setup-python@v6
