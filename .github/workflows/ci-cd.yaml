@@ -1,0 +1,60 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, dev]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    env:
+      RUN_SONAR: false  # set to true to enable SonarCloud
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: 3.12
+
+    - name: Build builder image
+      run: docker build --target builder -t app:builder .
+
+    - name: Run tests
+      run: docker run --rm app:builder uv run pytest --maxfail=1 --disable-warnings -q --cov=app --junitxml=report.xml
+
+    - name: Build production image
+      run: docker build --target production -t app:latest .
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.33.1
+      with:
+        image-ref: python:3.12-slim-bookworm
+        format: table
+        exit-code: 1
+        severity: CRITICAL,HIGH
+
+    - name: SonarCloud Scan
+      if: env.RUN_SONAR == 'true'
+      uses: sonarsource/sonarqube-scan-action@latest
+      with:
+        projectBaseDir: .
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
+    - name: Login to ECR
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Push image
+      run: |
+        docker tag app:latest $ECR_REPO
+        docker push $ECR_REPO
+
+    - name: Deploy CDK
+      run: |
+        cd cdk
+        pip install -r requirements.txt
+        cdk deploy --require-approval never
