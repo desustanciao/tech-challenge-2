@@ -27,7 +27,7 @@ FROM builder AS test
 ENV UV_NO_DEV=0
 
 RUN uv sync --locked --extra dev
-RUN uv run pytest --maxfail=1 --disable-warnings -q --cov=app --junitxml=report.xml
+RUN uv run pytest --maxfail=1 --disable-warnings -q --junitxml=report.xml
 
 # Then, use a final image without uv
 FROM python:3.12-slim-bookworm AS production
