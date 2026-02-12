@@ -10,10 +10,10 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.0",
     "psycopg[binary]>=3.1",
     "alembic>=1.13",
-    "python-jose>=3.3",
+    "python-jose[cryptography]>=3.3",
     "passlib[bcrypt]>=1.7",
-    "pydantic>=2.6",
-    "pydantic-settings>=2.2",
+    "pydantic>=2.12",
+    "pydantic-settings>=2.12",
     "structlog>=24.1",
     "prometheus-fastapi-instrumentator>=6.1",
 ]
@@ -27,7 +27,9 @@ dev = [
     "mypy>=1.9",
     "pre-commit>=4.5",
     "aws-cdk-lib==2.238.0",
-    "constructs>=10.0.0,<11.0.0"
+    "constructs>=10.0.0,<11.0.0",
+    "pre-commit>=4.5.1",
+    "aiosqlite>=0.22"
 ]
 
 [tool.ruff]
@@ -54,3 +56,4 @@ indent-style = "space"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+pythonpath = ["."]
