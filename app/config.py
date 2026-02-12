@@ -14,6 +14,12 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-@lru_cache
+
+# Singleton provider function
+_settings: Settings | None = None
+
 def get_settings() -> Settings:
-    return Settings()
+    global _settings
+    if _settings is None:
+        _settings = Settings()
+    return _settings

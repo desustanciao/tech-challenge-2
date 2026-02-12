@@ -3,10 +3,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import declarative_base
 from app.config import get_settings
-
-Base = declarative_base()
 
 
 def get_engine():

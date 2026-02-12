@@ -5,10 +5,12 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import crud, schemas
-from app.auth import verify_token
-from app.database import Base, get_db, get_engine
+from app import schemas
+from app.crud import ItemsCRUD
+from app.database import get_db, get_engine
+from app.dependencies import get_items_crud, get_current_user
 from app.logging_config import configure_logging
+from app.models import Base, User
 
 
 @asynccontextmanager
@@ -39,5 +41,5 @@ async def readiness(db: AsyncSession = Depends(get_db)):
 
 
 @app.get("/items", response_model=list[schemas.Item])
-async def read_items(db: AsyncSession = Depends(get_db), user=Depends(verify_token)):
-    return await crud.get_items(db)
+async def read_items(items: ItemsCRUD = Depends(get_items_crud), current_user: User = Depends(get_current_user)):
+    return await items.get_items()
