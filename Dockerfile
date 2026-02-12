@@ -23,6 +23,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked
 
 
+FROM builder AS test
+ENV UV_NO_DEV=0
+
+RUN uv sync --locked --extra dev
+RUN uv run pytest --maxfail=1 --disable-warnings -q --cov=app --junitxml=report.xml
+
 # Then, use a final image without uv
 FROM python:3.12-slim-bookworm AS production
 # It is important to use the image that matches the builder, as the path to the

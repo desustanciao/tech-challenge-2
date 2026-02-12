@@ -32,7 +32,7 @@ jobs:
       run: docker build --target builder -t app:builder .
 
     - name: Run tests
-      run: docker run --rm app:builder uv sync --extra dev && uv run pytest --maxfail=1 --disable-warnings -q --cov=app --junitxml=report.xml
+      run: docker build --target test .
 
     - name: Build production image
       run: docker build --target production -t app:latest .
