@@ -4,6 +4,10 @@ on:
   push:
     branches: [main, dev]
 
+permissions:
+  id-token: write      # required for OIDC
+  contents: read
+
 jobs:
   build-test-deploy:
     runs-on: ubuntu-latest
@@ -12,6 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE }}
+        aws-region: ${{ variables.AWS_REGION }}
 
     - name: Set up Python
       uses: actions/setup-python@v6
@@ -22,7 +32,7 @@ jobs:
       run: docker build --target builder -t app:builder .
 
     - name: Run tests
-      run: docker run --rm app:builder uv run pytest --maxfail=1 --disable-warnings -q --cov=app --junitxml=report.xml
+      run: docker run --rm app:builder uv sync --extra dev && uv run pytest --maxfail=1 --disable-warnings -q --cov=app --junitxml=report.xml
 
     - name: Build production image
       run: docker build --target production -t app:latest .
@@ -35,26 +45,29 @@ jobs:
         exit-code: 1
         severity: CRITICAL,HIGH
 
-    - name: SonarCloud Scan
+    - name: SonarCloud scan
       if: env.RUN_SONAR == 'true'
-      uses: sonarsource/sonarqube-scan-action@latest
+      uses: sonarsource/sonarqube-scan-action@7.0.0
       with:
         projectBaseDir: .
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        SONAR_TOKEN: "${{ secrets.SONAR_TOKEN }}"
 
     - name: Login to ECR
-      uses: aws-actions/amazon-ecr-login@v1
+      uses: aws-actions/amazon-ecr-login@v2.0.1
 
-    - name: Push image
-      run: |
-        docker tag app:latest $ECR_REPO
-        docker push $ECR_REPO
-
-    - name: Deploy CDK
+    - name: CDK bootstrap
       run: |
         cd cdk
         pip install -r requirements.txt
-        cdk deploy --require-approval never
+        cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/us-east-1
+
+    - name: CDK synth
+      run: cdk synth
+
+    - name: CDK diff
+      run: cdk diff
+
+    - name: Deploy CDK
+      run: cdk deploy --require-approval never

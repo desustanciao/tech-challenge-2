@@ -1,23 +1,37 @@
-import os
 from aws_cdk import (
-    Stack,
+    CfnOutput,
     Duration,
     RemovalPolicy,
-    CfnOutput,
+    Stack,
+)
+from aws_cdk import (
     aws_ec2 as ec2,
+)
+from aws_cdk import (
+    aws_ecr_assets as ecr_assets,
+)
+from aws_cdk import (
     aws_ecs as ecs,
+)
+from aws_cdk import (
     aws_ecs_patterns as ecs_patterns,
-    aws_ecr as ecr,
-    aws_rds as rds,
-    aws_secretsmanager as secretsmanager,
+)
+from aws_cdk import (
     aws_iam as iam,
+)
+from aws_cdk import (
     aws_logs as logs,
+)
+from aws_cdk import (
+    aws_rds as rds,
+)
+from aws_cdk import (
+    aws_secretsmanager as secretsmanager,
 )
 from constructs import Construct
 
 
 class FastAPIInfrastructureStack(Stack):
-
     def __init__(self, scope: Construct, construct_id: str, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
@@ -34,11 +48,11 @@ class FastAPIInfrastructureStack(Stack):
         # ---------------------------------------------------------
         # ECR Repository
         # ---------------------------------------------------------
-        repository = ecr.Repository(
+        # Build Docker image from local app directory
+        image_asset = ecr_assets.DockerImageAsset(
             self,
-            "FastAPIRepository",
-            removal_policy=RemovalPolicy.DESTROY,
-            image_scan_on_push=True,
+            "FastAPIDockerImage",
+            directory="./app",  # path to your Dockerfile
         )
 
         # ---------------------------------------------------------
@@ -83,9 +97,7 @@ class FastAPIInfrastructureStack(Stack):
         db_instance = rds.DatabaseInstance(
             self,
             "PostgresDB",
-            engine=rds.DatabaseInstanceEngine.postgres(
-                version=rds.PostgresEngineVersion.VER_15
-            ),
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_15),
             instance_type=ec2.InstanceType.of(
                 ec2.InstanceClass.BURSTABLE3,
                 ec2.InstanceSize.MICRO,
@@ -133,11 +145,6 @@ class FastAPIInfrastructureStack(Stack):
         )
 
         # ---------------------------------------------------------
-        # Image Tag (Immutable)
-        # ---------------------------------------------------------
-        image_tag = os.getenv("IMAGE_TAG", "latest")
-
-        # ---------------------------------------------------------
         # Fargate Service with ALB
         # ---------------------------------------------------------
         fargate_service = ecs_patterns.ApplicationLoadBalancedFargateService(
@@ -149,10 +156,7 @@ class FastAPIInfrastructureStack(Stack):
             desired_count=1,
             public_load_balancer=True,
             task_image_options=ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
-                image=ecs.ContainerImage.from_ecr_repository(
-                    repository,
-                    tag=image_tag,
-                ),
+                image=ecs.ContainerImage.from_docker_image_asset(image_asset),
                 container_port=8000,
                 task_role=task_role,
                 environment={
@@ -160,12 +164,8 @@ class FastAPIInfrastructureStack(Stack):
                     "DATABASE_NAME": "appdb",
                 },
                 secrets={
-                    "DATABASE_USER": ecs.Secret.from_secrets_manager(
-                        db_secret, "username"
-                    ),
-                    "DATABASE_PASSWORD": ecs.Secret.from_secrets_manager(
-                        db_secret, "password"
-                    ),
+                    "DATABASE_USER": ecs.Secret.from_secrets_manager(db_secret, "username"),
+                    "DATABASE_PASSWORD": ecs.Secret.from_secrets_manager(db_secret, "password"),
                 },
                 log_driver=ecs.LogDriver.aws_logs(
                     stream_prefix="fastapi",
@@ -209,5 +209,5 @@ class FastAPIInfrastructureStack(Stack):
         CfnOutput(
             self,
             "ECRRepositoryURI",
-            value=repository.repository_uri,
+            value=image_asset.repository.repository_uri,
         )

@@ -1,11 +1,12 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer
+from fastapi import HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
 from jose import jwt
+
 from app.config import settings
+from app.dependencies import get_security
 
-security = HTTPBearer()
 
-def verify_token(credentials=Depends(security)):
+def verify_token(credentials: HTTPAuthorizationCredentials = get_security):
     try:
         payload = jwt.decode(
             credentials.credentials,
@@ -13,8 +14,7 @@ def verify_token(credentials=Depends(security)):
             algorithms=[settings.ALGORITHM],
         )
         return payload
-    except Exception:
+    except Exception as err:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid authentication token"
-        )
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid authentication token"
+        ) from err

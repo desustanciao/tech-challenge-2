@@ -1,6 +1,8 @@
-import structlog
 import logging
 import sys
+
+import structlog
+
 
 def configure_logging():
     logging.basicConfig(
@@ -12,7 +14,7 @@ def configure_logging():
     structlog.configure(
         processors=[
             structlog.processors.TimeStamper(fmt="iso"),
-            structlog.processors.JSONRenderer()
+            structlog.processors.JSONRenderer(),
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
     )

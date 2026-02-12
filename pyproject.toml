@@ -26,14 +26,16 @@ dev = [
     "ruff>=0.15",
     "mypy>=1.9",
     "pre-commit>=4.5",
+    "aws-cdk-lib==2.238.0",
+    "constructs>=10.0.0,<11.0.0"
 ]
 
-[tool.ruff]
 [tool.ruff]
 # Maximum line length for code
 line-length = 100
 target-version = "py312"
 
+[tool.ruff.lint]
 # Enable commonly used rule sets
 # E = pycodestyle (PEP8)
 # F = pyflakes (unused variables, undefined names)
@@ -41,8 +43,6 @@ target-version = "py312"
 # B = bugbear (common bug patterns)
 # UP = pyupgrade (modern syntax enforcement)
 select = ["E", "F", "I", "B", "UP"]
-
-# Ignore certain rules commonly overridden in open source
 ignore = [
     "E501",  # line too long (handled by line-length)
 ]
@@ -51,10 +51,6 @@ ignore = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-
-# How imports are grouped
-[tool.ruff.isort]
-profile = "black"  # compatible with black formatting
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

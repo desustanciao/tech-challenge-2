@@ -1,0 +1,62 @@
+# -------------------------------
+# Python caches and virtual environments
+# -------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pytest_cache/
+*.mypy_cache/
+.venv/
+.env
+
+# -------------------------------
+# Docker & Compose files
+# -------------------------------
+Dockerfile*
+docker-compose.yml
+
+# -------------------------------
+# Git
+# -------------------------------
+.git
+.gitignore
+
+# -------------------------------
+# Logs and output
+# -------------------------------
+*.log
+logs/
+*.out
+*.tmp
+
+# -------------------------------
+# CDK and Node.js / uv output
+# -------------------------------
+cdk.out/
+node_modules/
+uv.lock
+.uv/
+
+# -------------------------------
+# IDE / editor
+# -------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# -------------------------------
+# System files
+# -------------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------------
+# Tests / dev files (not needed in final image)
+# -------------------------------
+tests/
+docs/
+*.md

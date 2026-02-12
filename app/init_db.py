@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
+
 from app.models import Item
+
 
 def init_db(db: Session):
     if db.query(Item).first():
