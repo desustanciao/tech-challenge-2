@@ -88,13 +88,17 @@ jobs:
         working-directory: cdk
         run: pip install -r requirements.txt
 
+      - name: Disable telemetry
+        working-directory: cdk
+        run: cdk cli-telemetry --disable
+
       - name: CDK bootstrap
         working-directory: cdk
         run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ vars.AWS_REGION }}
 
       - name: CDK synth
         working-directory: cdk
-        run: cdk synth
+        run: cdk synth --app
 
       - name: CDK diff
         working-directory: cdk
