@@ -48,6 +48,11 @@ class FastAPIInfrastructureStack(Stack):
                     name="Public",
                     subnet_type=ec2.SubnetType.PUBLIC,
                     cidr_mask=24,
+                ),
+                ec2.SubnetConfiguration(
+                    name="Private",
+                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                    cidr_mask=24
                 )
             ],
         )
@@ -114,6 +119,7 @@ class FastAPIInfrastructureStack(Stack):
                 ec2.InstanceSize.MICRO,
             ),
             vpc=vpc,
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
             multi_az=False,
             allocated_storage=20,
             max_allocated_storage=20,
