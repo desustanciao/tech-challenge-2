@@ -10,7 +10,7 @@ permissions:
 
 env:
   RUN_SONAR: false
-  CDK_DISABLE_CLI_TELEMETRY: false
+  CDK_DISABLE_CLI_TELEMETRY: true
   CDK_OUTDIR: /tmp/cdk.out
 jobs:
 
@@ -95,4 +95,4 @@ jobs:
 
       - name: Deploy CDK
         working-directory: cdk
-        run: cdk deploy -v --require-approval never
+        run: cdk deploy -v --require-approval never --app "python3 app.py"
