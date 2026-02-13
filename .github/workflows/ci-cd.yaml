@@ -11,6 +11,7 @@ permissions:
 env:
   RUN_SONAR: false
   CDK_DISABLE_CLI_TELEMETRY: false
+  CDK_OUTDIR: /tmp/cdk.out
 jobs:
 
   build:
@@ -61,8 +62,6 @@ jobs:
 
 
   deploy:
-    env:
-      CDK_OUTDIR: /tmp/cdk.out
     runs-on: ubuntu-latest
     needs: test
 
