@@ -93,10 +93,6 @@ jobs:
         working-directory: cdk
         run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ vars.AWS_REGION }}
 
-      - name: CDK diff
-        working-directory: cdk
-        run: cdk diff --app "python3 app.py"
-
       - name: Deploy CDK
         working-directory: cdk
         run: cdk deploy --require-approval never
