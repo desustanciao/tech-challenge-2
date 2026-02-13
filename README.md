@@ -2,22 +2,18 @@
 
 ```mermaid
 flowchart TD
-    Client[Client / Browser] -->|HTTP/HTTPS| App[App in Public Subnet]
-    App -->|DB Connection| DB[RDS in Private Subnet]
 
-    subgraph PublicSubnet["Public Subnet"]
+    Client["Client / Browser"] -->|HTTP/HTTPS| App["App (Public Subnet)"]
+    App -->|DB Connection| DB["RDS (Private Subnet)"]
+
+    subgraph Public_Subnet
         App
-        IGW[Internet Gateway]
+        IGW["Internet Gateway"]
     end
 
-    subgraph PrivateSubnet["Private Subnet"]
+    subgraph Private_Subnet
         DB
-        NAT[NAT Gateway (optional)]
     end
 
     App --> IGW
-    DB -->|Outbound Internet (optional)| NAT --> IGW
-
-    %% Security Groups
-    App -->|Outbound to DB port| DB
 ```
