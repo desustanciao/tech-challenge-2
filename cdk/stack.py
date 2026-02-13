@@ -35,9 +35,6 @@ class FastAPIInfrastructureStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
-        # ---------------------------------------------------------
-        # VPC
-        # ---------------------------------------------------------
         vpc = ec2.Vpc(
             self,
             "AppVPC",
@@ -57,9 +54,7 @@ class FastAPIInfrastructureStack(Stack):
             ],
         )
 
-        # ---------------------------------------------------------
-        # ECR Repository
-        # ---------------------------------------------------------
+
         # Build Docker image from local app directory
         image_asset = ecr_assets.DockerImageAsset(
             self,
@@ -71,9 +66,6 @@ class FastAPIInfrastructureStack(Stack):
             target="production"
         )
 
-        # ---------------------------------------------------------
-        # Secrets Manager (DB Credentials)
-        # ---------------------------------------------------------
         db_secret = secretsmanager.Secret(
             self,
             "DBSecret",
@@ -84,9 +76,6 @@ class FastAPIInfrastructureStack(Stack):
             ),
         )
 
-        # ---------------------------------------------------------
-        # Security Groups
-        # ---------------------------------------------------------
         ecs_sg = ec2.SecurityGroup(
             self,
             "ECSSecurityGroup",
@@ -107,9 +96,6 @@ class FastAPIInfrastructureStack(Stack):
             description="Allow ECS to access RDS",
         )
 
-        # ---------------------------------------------------------
-        # RDS PostgreSQL (Free Tier)
-        # ---------------------------------------------------------
         db_instance = rds.DatabaseInstance(
             self,
             "PostgresDB",
@@ -124,25 +110,19 @@ class FastAPIInfrastructureStack(Stack):
             allocated_storage=20,
             max_allocated_storage=20,
             credentials=rds.Credentials.from_secret(db_secret),
-            publicly_accessible=True,
+            publicly_accessible=False,
             security_groups=[rds_sg],
             removal_policy=RemovalPolicy.DESTROY,
             deletion_protection=False,
             database_name="appdb",
         )
 
-        # ---------------------------------------------------------
-        # ECS Cluster
-        # ---------------------------------------------------------
         cluster = ecs.Cluster(
             self,
             "AppCluster",
             vpc=vpc,
         )
 
-        # ---------------------------------------------------------
-        # Task Role (Least Privilege)
-        # ---------------------------------------------------------
         task_role = iam.Role(
             self,
             "AppTaskRole",
@@ -151,9 +131,6 @@ class FastAPIInfrastructureStack(Stack):
 
         db_secret.grant_read(task_role)
 
-        # ---------------------------------------------------------
-        # Log Group
-        # ---------------------------------------------------------
         log_group = logs.LogGroup(
             self,
             "AppLogGroup",
@@ -161,9 +138,6 @@ class FastAPIInfrastructureStack(Stack):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-        # ---------------------------------------------------------
-        # Fargate Service with ALB
-        # ---------------------------------------------------------
         fargate_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
             "FastAPIService",
@@ -172,6 +146,10 @@ class FastAPIInfrastructureStack(Stack):
             memory_limit_mib=512,
             desired_count=1,
             public_load_balancer=True,
+            assign_public_ip=True,
+            task_subnets=ec2.SubnetSelection(
+                subnet_type=ec2.SubnetType.PUBLIC  # 👈 ADD THIS
+            ),
             task_image_options=ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
                 image=ecs.ContainerImage.from_docker_image_asset(image_asset),
                 container_port=8000,
@@ -192,9 +170,6 @@ class FastAPIInfrastructureStack(Stack):
             security_groups=[ecs_sg],
         )
 
-        # ---------------------------------------------------------
-        # Autoscaling
-        # ---------------------------------------------------------
         scaling = fargate_service.service.auto_scale_task_count(
             min_capacity=1,
             max_capacity=4,
@@ -205,18 +180,12 @@ class FastAPIInfrastructureStack(Stack):
             target_utilization_percent=70,
         )
 
-        # ---------------------------------------------------------
-        # Health Check Configuration
-        # ---------------------------------------------------------
         fargate_service.target_group.configure_health_check(
             path="/health/live",
             healthy_http_codes="200",
             interval=Duration.seconds(30),
         )
 
-        # ---------------------------------------------------------
-        # Outputs
-        # ---------------------------------------------------------
         CfnOutput(
             self,
             "LoadBalancerURL",
