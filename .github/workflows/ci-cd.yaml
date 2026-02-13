@@ -10,7 +10,7 @@ permissions:
 
 env:
   RUN_SONAR: false
-
+  CDK_DISABLE_CLI_TELEMETRY: false
 jobs:
 
   build:
@@ -87,10 +87,6 @@ jobs:
       - name: Install Python dependencies
         working-directory: cdk
         run: pip install -r requirements.txt
-
-      - name: Disable telemetry
-        working-directory: cdk
-        run: cdk cli-telemetry --disable
 
       - name: CDK bootstrap
         working-directory: cdk
