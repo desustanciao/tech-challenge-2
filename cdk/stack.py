@@ -61,7 +61,7 @@ class FastAPIInfrastructureStack(Stack):
             "FastAPIDockerImage",
             directory="./../",  # path to Dockerfile
             asset_name="FastAPIDockerImage",
-            exclude=["*test*"],
+            exclude=["*test*","cdk/*",".git*",".venv/*"],
             ignore_mode=IgnoreMode.DOCKER,
             target="production"
         )
