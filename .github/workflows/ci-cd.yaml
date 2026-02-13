@@ -61,6 +61,8 @@ jobs:
 
 
   deploy:
+    env:
+      CDK_OUTDIR: /tmp/cdk.out
     runs-on: ubuntu-latest
     needs: test
 
