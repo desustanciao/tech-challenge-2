@@ -90,7 +90,7 @@ jobs:
 
       - name: CDK bootstrap
         working-directory: cdk
-        run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/us-east-1
+        run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/eu-south-2
 
       - name: CDK synth
         working-directory: cdk
