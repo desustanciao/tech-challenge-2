@@ -119,7 +119,7 @@ class FastAPIInfrastructureStack(Stack):
                 ec2.InstanceSize.MICRO,
             ),
             vpc=vpc,
-            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
             multi_az=False,
             allocated_storage=20,
             max_allocated_storage=20,
