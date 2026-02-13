@@ -67,6 +67,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -76,23 +81,25 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2.0.1
 
+      - name: Install CDK CLI
+        run: npm install -g aws-cdk
+
+      - name: Install Python dependencies
+        working-directory: cdk
+        run: pip install -r requirements.txt
+
       - name: CDK bootstrap
-        run: |
-          cd cdk
-          pip install -r requirements.txt
-          cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/us-east-1
+        working-directory: cdk
+        run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/us-east-1
 
       - name: CDK synth
-        run: |
-          cd cdk
-          cdk synth
+        working-directory: cdk
+        run: cdk synth
 
       - name: CDK diff
-        run: |
-          cd cdk
-          cdk diff
+        working-directory: cdk
+        run: cdk diff
 
       - name: Deploy CDK
-        run: |
-          cd cdk
-          cdk deploy --require-approval never
+        working-directory: cdk
+        run: cdk deploy --require-approval never
