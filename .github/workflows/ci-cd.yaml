@@ -95,4 +95,4 @@ jobs:
 
       - name: Deploy CDK
         working-directory: cdk
-        run: cdk deploy --require-approval never
+        run: cdk deploy -v --require-approval never
