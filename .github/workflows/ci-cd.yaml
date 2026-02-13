@@ -11,7 +11,6 @@ permissions:
 env:
   RUN_SONAR: false
   CDK_DISABLE_CLI_TELEMETRY: true
-  CDK_OUTDIR: /tmp/cdk.out
 jobs:
 
   build:
@@ -85,14 +84,17 @@ jobs:
       - name: Install CDK CLI
         run: npm install -g aws-cdk
 
+      - name: Move repo to /tmp
+        run: mv $GITHUB_WORKSPACE /tmp/repo
+
       - name: Install Python dependencies
-        working-directory: cdk
+        working-directory: /tmp/app/cdk
         run: pip install -r requirements.txt
 
       - name: CDK bootstrap
-        working-directory: cdk
+        working-directory: /tmp/app/cdk
         run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ vars.AWS_REGION }}
 
       - name: Deploy CDK
-        working-directory: cdk
-        run: cdk deploy -v --require-approval never --app "python3 app.py"
+        working-directory: /tmp/app/cdk
+        run: cdk deploy --require-approval never --app "python3 app.py"
