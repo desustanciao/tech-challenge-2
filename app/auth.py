@@ -32,7 +32,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 async def get_token_from_header(
-    authorization: str = Header(..., description="Bearer JWT token")
+    authorization: str  = Header(..., description="Bearer JWT token")
 ) -> str:
     """
     Extracts the token from the Authorization header.

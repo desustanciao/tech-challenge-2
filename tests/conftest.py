@@ -9,12 +9,11 @@ from jose import jwt
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
 
-from app import crud
-from app.crud import ItemsCRUD
+from app.auth import get_password_hash
 from app.main import app
 from app.database import get_db
 from app.config import Settings
-from app.models import Item, Base
+from app.models import Item, Base, User
 
 
 @pytest.fixture(scope="session")
@@ -85,18 +84,6 @@ async def client():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
-@pytest.fixture
-async def mock_db_session(monkeypatch):
-    class DummySession:
-        async def execute(self, query, *args, **kwargs):
-            class DummyResult:
-                def scalars(self):
-                    return []
-            return DummyResult()
-
-    session = DummySession()
-    monkeypatch.setattr(crud, "get_items", lambda db: [Item(id=1, name="Test", description="Test desc")])
-    yield session
 
 
 @pytest.fixture
@@ -106,3 +93,41 @@ def access_token(mock_settings):
         mock_settings.SECRET_KEY,
         algorithm=mock_settings.ALGORITHM,
     )
+
+@pytest.fixture
+def mock_items_crud():
+    class MockItemsCRUD:
+        async def get_items(self):
+            return [Item(id=1, name="Test", description="I Will get the job!")]
+
+    return MockItemsCRUD()
+
+@pytest.fixture(autouse=True)
+def override_items_crud(mock_items_crud):
+    from app.dependencies import get_items_crud
+
+    app.dependency_overrides[get_items_crud] = lambda: mock_items_crud
+    yield
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def mock_user_crud():
+    class MockUserCRUD:
+        async def validate_jwt(self, token):
+            test_user = User(
+                username="testuser",
+                email="test@example.com",
+                hashed_password=get_password_hash("password123")
+            )
+            return test_user
+
+    return MockUserCRUD()
+
+@pytest.fixture(autouse=True)
+def override_users_crud(mock_user_crud):
+    from app.dependencies import get_user_crud
+
+    app.dependency_overrides[get_user_crud] = lambda: mock_user_crud
+    yield
+    app.dependency_overrides.clear()

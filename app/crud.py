@@ -20,9 +20,8 @@ class ItemsCRUD:
         result = await self.db.execute(select(Item))
         return result.scalars().all()
 
+
 # User
-
-
 class UserCRUD:
     """
     Encapsulates all user-related database operations.

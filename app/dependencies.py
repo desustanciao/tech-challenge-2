@@ -38,5 +38,4 @@ async def get_current_user(
     Validate JWT token and resolve user from DB.
     Raises 403 if token is invalid or user not found.
     """
-    user = await users.validate_jwt(token)
-    return user
+    return await users.validate_jwt(token)
