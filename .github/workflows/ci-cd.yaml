@@ -94,7 +94,7 @@ jobs:
 
       - name: CDK diff
         working-directory: cdk
-        run: cdk diff
+        run: cdk diff --app "python3 app.py"
 
       - name: Deploy CDK
         working-directory: cdk
