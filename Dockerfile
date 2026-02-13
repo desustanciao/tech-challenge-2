@@ -26,6 +26,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 FROM builder AS test
 ENV UV_NO_DEV=0
 
+
 RUN uv sync --locked --extra dev
 RUN uv run pytest --maxfail=1 --disable-warnings -q
 

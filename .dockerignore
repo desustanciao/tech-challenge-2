@@ -56,6 +56,5 @@ Thumbs.db
 # -------------------------------
 # Tests / dev files (not needed in final image)
 # -------------------------------
-tests/
 docs/
 *.md
