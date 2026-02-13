@@ -41,8 +41,15 @@ class FastAPIInfrastructureStack(Stack):
         vpc = ec2.Vpc(
             self,
             "AppVPC",
-            max_azs=2,
-            nat_gateways=1,
+            max_azs=1,
+            nat_gateways=0,
+            subnet_configuration=[
+                ec2.SubnetConfiguration(
+                    name="Public",
+                    subnet_type=ec2.SubnetType.PUBLIC,
+                    cidr_mask=24,
+                )
+            ],
         )
 
         # ---------------------------------------------------------
@@ -107,7 +114,7 @@ class FastAPIInfrastructureStack(Stack):
             allocated_storage=20,
             max_allocated_storage=20,
             credentials=rds.Credentials.from_secret(db_secret),
-            publicly_accessible=False,
+            publicly_accessible=True,
             security_groups=[rds_sg],
             removal_policy=RemovalPolicy.DESTROY,
             deletion_protection=False,
@@ -140,7 +147,7 @@ class FastAPIInfrastructureStack(Stack):
         log_group = logs.LogGroup(
             self,
             "AppLogGroup",
-            retention=logs.RetentionDays.ONE_WEEK,
+            retention=logs.RetentionDays.ONE_DAY,
             removal_policy=RemovalPolicy.DESTROY,
         )
 
