@@ -1,11 +1,9 @@
-import os
 import asyncio
-from unittest.mock import AsyncMock
 
 import pytest
 
 from httpx import AsyncClient, ASGITransport
-from jose import jwt
+import jwt
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
 

@@ -1,7 +1,8 @@
 from typing import Any
 
 from fastapi import HTTPException
-from jose import jwt, JWTError
+import jwt
+from jwt.exceptions import PyJWTError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
@@ -106,7 +107,7 @@ class UserCRUD:
 
             return user
 
-        except JWTError as err:
+        except PyJWTError as err:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Invalid authentication token",

@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status, Header, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import jwt
+import jwt
 
 from app.config import get_settings, Settings
 import bcrypt
