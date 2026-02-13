@@ -59,7 +59,7 @@ class FastAPIInfrastructureStack(Stack):
         image_asset = ecr_assets.DockerImageAsset(
             self,
             "FastAPIDockerImage",
-            directory="./app",  # path to your Dockerfile
+            directory="./../",  # path to your Dockerfile
         )
 
         # ---------------------------------------------------------
