@@ -41,7 +41,7 @@ class FastAPIInfrastructureStack(Stack):
         vpc = ec2.Vpc(
             self,
             "AppVPC",
-            max_azs=1,
+            max_azs=2,
             nat_gateways=0,
             subnet_configuration=[
                 ec2.SubnetConfiguration(
@@ -51,7 +51,7 @@ class FastAPIInfrastructureStack(Stack):
                 ),
                 ec2.SubnetConfiguration(
                     name="Private",
-                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                    subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
                     cidr_mask=24
                 )
             ],
