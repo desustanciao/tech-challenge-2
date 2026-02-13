@@ -2,7 +2,7 @@ from aws_cdk import (
     CfnOutput,
     Duration,
     RemovalPolicy,
-    Stack,
+    Stack, IgnoreMode,
 )
 from aws_cdk import (
     aws_ec2 as ec2,
@@ -59,7 +59,11 @@ class FastAPIInfrastructureStack(Stack):
         image_asset = ecr_assets.DockerImageAsset(
             self,
             "FastAPIDockerImage",
-            directory="./../",  # path to your Dockerfile
+            directory="./../",  # path to Dockerfile
+            asset_name="FastAPIDockerImage",
+            exclude=["*test*"],
+            ignore_mode=IgnoreMode.DOCKER,
+            target="production"
         )
 
         # ---------------------------------------------------------
