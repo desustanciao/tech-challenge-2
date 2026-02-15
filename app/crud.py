@@ -1,7 +1,7 @@
 from typing import Any
 
-from fastapi import HTTPException
 import jwt
+from fastapi import HTTPException
 from jwt.exceptions import PyJWTError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.mark.asyncio
 async def test_items_requires_auth(client):
     headers = {"Authorization": ""}

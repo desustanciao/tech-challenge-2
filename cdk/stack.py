@@ -1,8 +1,9 @@
 from aws_cdk import (
     CfnOutput,
     Duration,
+    IgnoreMode,
     RemovalPolicy,
-    Stack, IgnoreMode,
+    Stack,
 )
 from aws_cdk import (
     aws_ec2 as ec2,

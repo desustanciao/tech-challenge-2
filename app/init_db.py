@@ -1,7 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models import Item, User
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.auth import get_password_hash
+from app.models import Item, User
+
 
 async def init_db(db: AsyncSession):
     # Check if items already exist

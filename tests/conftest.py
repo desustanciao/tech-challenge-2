@@ -1,17 +1,16 @@
 import asyncio
 
-import pytest
-
-from httpx import AsyncClient, ASGITransport
 import jwt
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+import pytest
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from app.auth import get_password_hash
-from app.main import app
-from app.database import get_db
 from app.config import Settings
-from app.models import Item, Base, User
+from app.database import get_db
+from app.main import app
+from app.models import Base, Item, User
 
 
 @pytest.fixture(scope="session")
@@ -21,7 +20,10 @@ def mock_settings():
     Automatically used in all tests.
     """
     test_settings = Settings(
-        DATABASE_URL="sqlite+aiosqlite:///:memory:",
+        DATABASE_USER = "test",
+        DATABASE_PASSWORD= "password",
+        DATABASE_HOST= ":memory:",
+        DATABASE_NAME= "testdb",
         SECRET_KEY="testsecret",
         ALGORITHM="HS256",
         ACCESS_TOKEN_EXPIRE_MINUTES=30
@@ -47,7 +49,7 @@ def event_loop():
 @pytest.fixture(scope="session")
 async def engine(mock_settings):
     engine = create_async_engine(
-        mock_settings.DATABASE_URL,
+        "sqlite+aiosqlite:///:memory:",
         connect_args={"check_same_thread": False},
         poolclass=NullPool,
     )
