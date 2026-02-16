@@ -1,3 +1,5 @@
+import os
+
 from aws_cdk import (
     CfnOutput,
     Duration,
@@ -162,6 +164,7 @@ class FastAPIInfrastructureStack(Stack):
                 secrets={
                     "DATABASE_USER": ecs.Secret.from_secrets_manager(db_secret, "username"),
                     "DATABASE_PASSWORD": ecs.Secret.from_secrets_manager(db_secret, "password"),
+                    "SECRET_KEY": os.environ["SECRET_KEY"],
                 },
                 log_driver=ecs.LogDriver.aws_logs(
                     stream_prefix="fastapi",
