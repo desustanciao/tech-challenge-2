@@ -57,14 +57,14 @@ async def read_items(items: ItemsCRUD = Depends(get_items_crud), current_user: U
 @app.post("/get_token")
 async def get_token(username: str, user_crud: UserCRUD = Depends(get_user_crud)):
     user = await user_crud.get_by_username(username)
-    token = await user_crud.update_user_token(user)
+    token = await user_crud.generate_token_and_update_user(user)
 
     return {
         "access_token": token,
         "token_type": "bearer",
     }
 
-@app.post("/get_cookie")
+@app.get("/get_cookie")
 async def get_cookie(response: Response, username: str, user_crud: UserCRUD = Depends(get_user_crud)):
     user = await user_crud.get_by_username(username)
     token = await user_crud.generate_token_and_update_user(user)
@@ -80,7 +80,7 @@ async def get_cookie(response: Response, username: str, user_crud: UserCRUD = De
     )
     return {"message": "Login successful"}
 
-@app.post("/logout")
+@app.get("/logout")
 async def logout(
     response: Response,
     current_user: User = Depends(get_current_user),
