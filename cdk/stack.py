@@ -130,8 +130,6 @@ class FastAPIInfrastructureStack(Stack):
             database_name="appdb",
         )
 
-        db_instance.add_rotation_single_user()
-
         cluster = ecs.Cluster(
             self,
             "AppCluster",
