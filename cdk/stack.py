@@ -122,7 +122,7 @@ class FastAPIInfrastructureStack(Stack):
             allocated_storage=20,
             max_allocated_storage=20,
             credentials=rds.Credentials.from_secret(db_secret),
-            publicly_accessible=False,
+            publicly_accessible=True,
             security_groups=[rds_sg],
             removal_policy=RemovalPolicy.DESTROY,
             deletion_protection=False,

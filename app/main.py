@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Tech-challenge", lifespan=lifespan)
+app = FastAPI(title="challenge", lifespan=lifespan)
 
 configure_logging()
 
