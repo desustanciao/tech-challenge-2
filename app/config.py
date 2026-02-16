@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     DATABASE_HOST: str = None
     DATABASE_NAME: str = None
     SECRET_KEY: str = None
+    LOCAL: bool = False
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 

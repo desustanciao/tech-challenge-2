@@ -9,13 +9,16 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from app.config import Settings, get_settings
 
 
-def get_engine(settings: Settings = Depends(get_settings)) -> AsyncEngine:
+def get_engine(settings: Settings = Depends(get_settings), sslmode: str = "require") -> AsyncEngine:
     """
     return postgres engine instance
+    :param sslmode:
     :param settings:
     :return:
     """
-    db_url = f"postgresql+psycopg://{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@{settings.DATABASE_HOST}:5432/{settings.DATABASE_NAME}?sslmode=require"
+    if settings.LOCAL:
+        sslmode = "disable"
+    db_url = f"postgresql+psycopg://{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@{settings.DATABASE_HOST}:5432/{settings.DATABASE_NAME}?sslmode={sslmode}"
     return create_async_engine(db_url, echo=False,)
 
 

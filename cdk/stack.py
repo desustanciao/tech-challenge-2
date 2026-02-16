@@ -111,7 +111,7 @@ class FastAPIInfrastructureStack(Stack):
         db_instance = rds.DatabaseInstance(
             self,
             "PostgresDB",
-            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_15),
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_18),
             instance_type=ec2.InstanceType.of(
                 ec2.InstanceClass.BURSTABLE3,
                 ec2.InstanceSize.MICRO,
@@ -122,7 +122,7 @@ class FastAPIInfrastructureStack(Stack):
             allocated_storage=20,
             max_allocated_storage=20,
             credentials=rds.Credentials.from_secret(db_secret),
-            publicly_accessible=True,
+            publicly_accessible=False,
             security_groups=[rds_sg],
             removal_policy=RemovalPolicy.DESTROY,
             deletion_protection=False,

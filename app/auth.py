@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import bcrypt
 import jwt
-from fastapi import Header, HTTPException, status
+from fastapi import Cookie, Header, HTTPException, status
 from jwt import PyJWTError
 
 from app.config import Settings
@@ -29,18 +29,31 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
-async def get_token_from_header(
-        authorization: str = Header(..., description="Bearer JWT token")
+async def get_token_from_request(
+    authorization: str | None = Header(None, description="Bearer JWT token"),
+    access_token: str | None = Cookie(None)
 ) -> str:
     """
-    Extracts the token from the Authorization header.
+    Extract token from Authorization header or cookie.
+    Header takes priority if present.
     """
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid authorization header"
-        )
-    return authorization[len("Bearer "):]
+    token: str | None = None
+
+    if authorization:
+        if not authorization.startswith("Bearer "):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Invalid authorization header"
+            )
+        token = authorization[len("Bearer "):]
+
+    elif access_token:
+        token = access_token
+
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
+    return token
 
 
 def create_jwt(

@@ -3,13 +3,14 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Response
 from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app import schemas
 from app.config import get_settings
 from app.crud import ItemsCRUD, UserCRUD
 from app.database import get_db
 from app.dependencies import get_current_user, get_items_crud, get_user_crud
+from app.init_db import init_db
 from app.logging_config import configure_logging
 from app.models import Base, User
 
@@ -17,16 +18,22 @@ from app.models import Base, User
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()  # ✅ call directly, no Depends
+
+    sslmode = "disable" if settings.LOCAL else "require"
     db_url = (
         f"postgresql+psycopg://{settings.DATABASE_USER}:"
         f"{settings.DATABASE_PASSWORD}@{settings.DATABASE_HOST}:5432/"
-        f"{settings.DATABASE_NAME}?sslmode=require"
+        f"{settings.DATABASE_NAME}?sslmode={sslmode}"
     )
 
     engine = create_async_engine(db_url, echo=False)
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
+    async with async_session() as session:
+        await init_db(session)
     await engine.dispose()
     yield
 
