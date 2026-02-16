@@ -1,5 +1,4 @@
 import datetime
-import hashlib
 from datetime import timedelta
 
 import bcrypt

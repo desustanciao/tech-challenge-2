@@ -1,4 +1,4 @@
-from fastapi import Depends, Cookie, HTTPException
+from fastapi import Cookie, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import get_token_from_header

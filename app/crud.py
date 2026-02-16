@@ -1,14 +1,11 @@
 import hashlib
-from typing import Any
 
-import jwt
 from fastapi import HTTPException
-from jwt.exceptions import PyJWTError
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.auth import get_password_hash, verify_password, create_jwt_hash, validate_jwt, create_jwt
+from app.auth import create_jwt, get_password_hash, validate_jwt, verify_password
 from app.config import Settings
 from app.models import Item, User
 

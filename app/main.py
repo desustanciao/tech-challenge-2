@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Response, Cookie
+from fastapi import Depends, FastAPI, Response
 from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from app import schemas
 from app.config import get_settings
 from app.crud import ItemsCRUD, UserCRUD
-from app.database import get_db, get_engine
+from app.database import get_db
 from app.dependencies import get_current_user, get_items_crud, get_user_crud
 from app.logging_config import configure_logging
 from app.models import Base, User

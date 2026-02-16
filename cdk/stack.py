@@ -1,4 +1,3 @@
-import os
 
 from aws_cdk import (
     CfnOutput,

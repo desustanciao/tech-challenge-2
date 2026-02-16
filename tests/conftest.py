@@ -114,7 +114,7 @@ def override_items_crud(mock_items_crud):
 @pytest.fixture
 def mock_user_crud():
     class MockUserCRUD:
-        async def validate_jwt(self, token):
+        async def get_user_from_token(self, token):
             test_user = User(
                 username="testuser",
                 email="test@example.com",
