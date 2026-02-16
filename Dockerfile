@@ -36,6 +36,7 @@ FROM python:3.12-slim-bookworm AS production
 # Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
 # will fail.
 
+ENV PYTHONUNBUFFERED=1
 # Setup a non-root user
 RUN groupadd --system --gid 999 appuser \
  && useradd --system --gid 999 --uid 999 --create-home appuser

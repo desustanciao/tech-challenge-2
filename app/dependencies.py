@@ -35,6 +35,4 @@ async def get_current_user(
     Validate JWT token and resolve user from DB.
     Raises 403 if token is invalid or user not found.
     """
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
     return await users.get_user_from_token(token)

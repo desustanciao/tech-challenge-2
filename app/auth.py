@@ -51,7 +51,7 @@ async def get_token_from_request(
         token = access_token
 
     if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authenticated")
 
     return token
 
