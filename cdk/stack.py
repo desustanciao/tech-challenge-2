@@ -79,6 +79,16 @@ class FastAPIInfrastructureStack(Stack):
             ),
         )
 
+        secret_key_secret = secretsmanager.Secret(
+            self,
+            "JwtSecretKey",
+            secret_name="fastapi/jwt/secret-key",
+            generate_secret_string=secretsmanager.SecretStringGenerator(
+                password_length=64,
+                exclude_punctuation=True,
+            ),
+        )
+
         ecs_sg = ec2.SecurityGroup(
             self,
             "ECSSecurityGroup",
@@ -120,6 +130,8 @@ class FastAPIInfrastructureStack(Stack):
             database_name="appdb",
         )
 
+        db_instance.add_rotation_single_user()
+
         cluster = ecs.Cluster(
             self,
             "AppCluster",
@@ -133,6 +145,7 @@ class FastAPIInfrastructureStack(Stack):
         )
 
         db_secret.grant_read(task_role)
+        secret_key_secret.grant_read(task_role)
 
         log_group = logs.LogGroup(
             self,
@@ -164,7 +177,7 @@ class FastAPIInfrastructureStack(Stack):
                 secrets={
                     "DATABASE_USER": ecs.Secret.from_secrets_manager(db_secret, "username"),
                     "DATABASE_PASSWORD": ecs.Secret.from_secrets_manager(db_secret, "password"),
-                    "SECRET_KEY": os.environ["SECRET_KEY"],
+                    "SECRET_KEY": ecs.Secret.from_secrets_manager(secret_key_secret)
                 },
                 log_driver=ecs.LogDriver.aws_logs(
                     stream_prefix="fastapi",
