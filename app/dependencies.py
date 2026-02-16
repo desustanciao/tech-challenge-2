@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, Cookie, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import get_token_from_header
@@ -12,7 +12,7 @@ async def get_items_crud(
     settings: Settings = Depends(get_settings)
 ) -> ItemsCRUD:
     """
-    Dependency to provide a UserCRUD instance with DB session and settings.
+    Dependency to provide a ItemsCRUD instance with DB session and settings.
     """
     return ItemsCRUD(db, settings)
 
@@ -28,6 +28,7 @@ async def get_user_crud(
 
 
 async def get_current_user(
+    access_token: str | None = Cookie(default=None),
     token: str = Depends(get_token_from_header),
     users: UserCRUD = Depends(get_user_crud)
 ):
@@ -35,4 +36,6 @@ async def get_current_user(
     Validate JWT token and resolve user from DB.
     Raises 403 if token is invalid or user not found.
     """
-    return await users.validate_jwt(token)
+    if not access_token and not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return await users.get_user_from_token(token)

@@ -1,11 +1,18 @@
+import datetime
+import hashlib
+from datetime import timedelta
+
 import bcrypt
+import jwt
 from fastapi import Header, HTTPException, status
+from jwt import PyJWTError
+
+from app.config import Settings
 
 
 def get_password_hash(password: str) -> str:
     """
     Hash a plain-text password using bcrypt.
-    The salt is automatically generated and stored in the hash.
     Returns a UTF-8 encoded string.
     """
     password_bytes = password.encode('utf-8')
@@ -35,3 +42,58 @@ async def get_token_from_header(
             detail="Invalid authorization header"
         )
     return authorization[len("Bearer "):]
+
+
+def create_jwt(
+    username: str,
+    settings: Settings,
+) -> str:
+    """
+    Create a JWT hash using a username.
+    :param username:
+    :param settings:
+    :return:
+    """
+
+    expire = datetime.datetime.now(datetime.UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    payload = {
+        "sub": username,
+        "exp": expire,
+        "iat": datetime.datetime.now(datetime.UTC),
+    }
+    encoded_jwt = jwt.encode(
+        payload,
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
+
+    return encoded_jwt
+
+
+async def validate_jwt(token: str, settings) -> str:
+    """
+    Validate a JWT token and returns the username
+    :param token:
+    :param settings:
+    :return:
+    """
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+    except PyJWTError as err:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid authentication token",
+        ) from err
+
+    username: str = payload.get("sub")
+    if not username:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid JWT payload",
+        )
+    return username

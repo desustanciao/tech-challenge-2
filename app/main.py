@@ -1,15 +1,15 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Response, Cookie
 from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app import schemas
 from app.config import get_settings
-from app.crud import ItemsCRUD
+from app.crud import ItemsCRUD, UserCRUD
 from app.database import get_db, get_engine
-from app.dependencies import get_current_user, get_items_crud
+from app.dependencies import get_current_user, get_items_crud, get_user_crud
 from app.logging_config import configure_logging
 from app.models import Base, User
 
@@ -52,3 +52,43 @@ async def readiness(db: AsyncSession = Depends(get_db)):
 @app.get("/items", response_model=list[schemas.Item])
 async def read_items(items: ItemsCRUD = Depends(get_items_crud), current_user: User = Depends(get_current_user)):
     return await items.get_items()
+
+
+@app.post("/get_token")
+async def get_token(username: str, user_crud: UserCRUD = Depends(get_user_crud)):
+    user = await user_crud.get_by_username(username)
+    token = await user_crud.update_user_token(user)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+    }
+
+@app.post("/get_cookie")
+async def get_cookie(response: Response, username: str, user_crud: UserCRUD = Depends(get_user_crud)):
+    user = await user_crud.get_by_username(username)
+    token = await user_crud.generate_token_and_update_user(user)
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=60 * 60,
+        path="/",
+    )
+    return {"message": "Login successful"}
+
+@app.post("/logout")
+async def logout(
+    response: Response,
+    current_user: User = Depends(get_current_user),
+    user_crud: UserCRUD = Depends(get_user_crud)
+):
+    if current_user:
+        await user_crud.remove_user_token(current_user)
+
+    response.delete_cookie("access_token")
+
+    return {"message": "Logged out"}

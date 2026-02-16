@@ -1,13 +1,14 @@
+import hashlib
 from typing import Any
 
 import jwt
 from fastapi import HTTPException
 from jwt.exceptions import PyJWTError
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.auth import get_password_hash, verify_password
+from app.auth import get_password_hash, verify_password, create_jwt_hash, validate_jwt, create_jwt
 from app.config import Settings
 from app.models import Item, User
 
@@ -17,6 +18,7 @@ class ItemsCRUD:
     def __init__(self, db: AsyncSession, settings: Settings):
         self.db = db
         self.settings = settings
+
     async def get_items(self):
         result = await self.db.execute(select(Item))
         return result.scalars().all()
@@ -33,21 +35,32 @@ class UserCRUD:
         self.db = db
         self.settings = settings
 
-    # ----------------------
-    # Read operations
-    # ----------------------
     async def get_by_username(self, username: str) -> User | None:
+        """
+        Get a user by username.
+        :param username:
+        :return:
+        """
         result = await self.db.execute(select(User).where(User.username == username))
         return result.scalar_one_or_none()
 
     async def get_by_id(self, user_id: int) -> User | None:
+        """
+        Get a user by ID.
+        :param user_id:
+        :return:
+        """
         result = await self.db.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
 
-    # ----------------------
-    # Create / Authenticate
-    # ----------------------
     async def create(self, username: str, email: str, password: str) -> User:
+        """
+        Create a new user.
+        :param username:
+        :param email:
+        :param password:
+        :return:
+        """
         hashed_password = get_password_hash(password)
         user = User(
             username=username,
@@ -70,46 +83,53 @@ class UserCRUD:
             return user
         return None
 
-    async def get_by_username_and_token(self, token: str, username: str) -> Any | None:
+    async def get_by_username_and_token(self, token: str, username: str) -> User | None:
+        """
+        Get a user by username and token.
+        :param token:
+        :param username:
+        :return:
+        """
         result = await self.db.execute(
             select(User).where(User.username == username, User.jwt_token == token)
         )
         user = result.scalar_one_or_none()
         return user
 
-    async def validate_jwt(self, token: str) -> User | None:
+    async def get_user_from_token(self, token: str) -> User:
         """
         Validate a JWT token against the database.
         Returns the User if valid, raises HTTPException otherwise.
         """
-        try:
-            # Decode token to get payload
-            payload = jwt.decode(
-                token,
-                self.settings.SECRET_KEY,
-                algorithms=[self.settings.ALGORITHM]
-            )
-            username: str = payload.get("sub")
-            if not username:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Invalid JWT payload",
-                )
+        username = await validate_jwt(token, self.settings)
+        hashed_token = hashlib.sha256(token.encode()).hexdigest()
+        user = await self.get_by_username_and_token(hashed_token, username)
 
-            # Query user by username AND matching token in DB
-            user = await self.get_by_username_and_token(token, username)
-
-            if not user:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Token not recognized",
-                )
-
-            return user
-
-        except PyJWTError as err:
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid authentication token",
-            ) from err
+                detail="Invalid token",
+            )
 
+        return user
+
+    async def generate_token_and_update_user(self, user: User) -> str:
+        """
+        Generates a new Token for the user
+        :param user:
+        :return:
+        """
+        encoded_jwt = create_jwt(user.username, self.settings)
+        user.jwt_token = hashlib.sha256(encoded_jwt.encode()).hexdigest()
+
+        await self.db.commit()
+        return encoded_jwt
+
+    async def remove_user_token(self, user: User) -> None:
+        """
+        remove token from user
+        :param user:
+        :return:
+        """
+        user.jwt_token = None
+        await self.db.commit()
