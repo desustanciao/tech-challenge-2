@@ -127,7 +127,6 @@ class FastAPIInfrastructureStack(Stack):
             removal_policy=RemovalPolicy.DESTROY,
             deletion_protection=False,
             database_name="appdb",
-            AllowMajorVersionUpgrade=True,
         )
 
         cluster = ecs.Cluster(
