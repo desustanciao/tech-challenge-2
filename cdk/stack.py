@@ -111,7 +111,7 @@ class FastAPIInfrastructureStack(Stack):
         db_instance = rds.DatabaseInstance(
             self,
             "PostgresDB",
-            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_18),
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_17),
             instance_type=ec2.InstanceType.of(
                 ec2.InstanceClass.BURSTABLE3,
                 ec2.InstanceSize.MICRO,
