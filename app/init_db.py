@@ -23,7 +23,7 @@ async def init_db(db: AsyncSession):
     test_user = User(
         username="testuser",
         email="test@example.com",
-        hashed_password=get_password_hash("password123")
+        hashed_password=get_password_hash("password123"),
     )
     db.add(test_user)
 

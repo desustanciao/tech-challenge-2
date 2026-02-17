@@ -59,11 +59,7 @@ class UserCRUD:
         :return:
         """
         hashed_password = get_password_hash(password)
-        user = User(
-            username=username,
-            email=email,
-            hashed_password=hashed_password
-        )
+        user = User(username=username, email=email, hashed_password=hashed_password)
         self.db.add(user)
         await self.db.commit()
         await self.db.refresh(user)

@@ -3,24 +3,15 @@ import time
 from fastapi import Request
 from prometheus_client import Counter, Histogram
 
-REQUEST_COUNT = Counter(
-    "http_requests_total",
-    "Total HTTP requests",
-    ["method", "path", "status"]
-)
+REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests", ["method", "path", "status"])
 
 REQUEST_LATENCY = Histogram(
-    "http_request_duration_seconds",
-    "HTTP request latency",
-    ["method", "path"]
+    "http_request_duration_seconds", "HTTP request latency", ["method", "path"]
 )
 
 REQUEST_EXCEPTIONS = Counter(
-    "http_request_exceptions_total",
-    "Total HTTP exceptions",
-    ["method", "path", "exception"]
+    "http_request_exceptions_total", "Total HTTP exceptions", ["method", "path", "exception"]
 )
-
 
 
 async def prometheus_middleware(request: Request, call_next):
@@ -37,25 +28,14 @@ async def prometheus_middleware(request: Request, call_next):
     try:
         response = await call_next(request)
 
-        REQUEST_COUNT.labels(
-            method=method,
-            path=path,
-            status=response.status_code
-        ).inc()
+        REQUEST_COUNT.labels(method=method, path=path, status=response.status_code).inc()
 
         return response
 
     except Exception as e:
-        REQUEST_EXCEPTIONS.labels(
-            method=method,
-            path=path,
-            exception=type(e).__name__
-        ).inc()
+        REQUEST_EXCEPTIONS.labels(method=method, path=path, exception=type(e).__name__).inc()
         raise
 
     finally:
         duration = time.time() - start_time
-        REQUEST_LATENCY.labels(
-            method=method,
-            path=path
-        ).observe(duration)
+        REQUEST_LATENCY.labels(method=method, path=path).observe(duration)

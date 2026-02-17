@@ -20,15 +20,16 @@ def mock_settings():
     Automatically used in all tests.
     """
     test_settings = Settings(
-        DATABASE_USER = "test",
-        DATABASE_PASSWORD= "password",
-        DATABASE_HOST= ":memory:",
-        DATABASE_NAME= "testdb",
+        DATABASE_USER="test",
+        DATABASE_PASSWORD="password",
+        DATABASE_HOST=":memory:",
+        DATABASE_NAME="testdb",
         SECRET_KEY="testsecret",
         ALGORITHM="HS256",
-        ACCESS_TOKEN_EXPIRE_MINUTES=30
+        ACCESS_TOKEN_EXPIRE_MINUTES=30,
     )
     yield test_settings
+
 
 @pytest.fixture(autouse=True)
 def override_settings(mock_settings):
@@ -85,7 +86,6 @@ async def client():
         yield ac
 
 
-
 @pytest.fixture
 def access_token(mock_settings):
     return jwt.encode(
@@ -94,6 +94,7 @@ def access_token(mock_settings):
         algorithm=mock_settings.ALGORITHM,
     )
 
+
 @pytest.fixture
 def mock_items_crud():
     class MockItemsCRUD:
@@ -101,6 +102,7 @@ def mock_items_crud():
             return [Item(id=1, name="Test", description="I Will get the job!")]
 
     return MockItemsCRUD()
+
 
 @pytest.fixture(autouse=True)
 def override_items_crud(mock_items_crud):
@@ -118,11 +120,12 @@ def mock_user_crud():
             test_user = User(
                 username="testuser",
                 email="test@example.com",
-                hashed_password=get_password_hash("password123")
+                hashed_password=get_password_hash("password123"),
             )
             return test_user
 
     return MockUserCRUD()
+
 
 @pytest.fixture(autouse=True)
 def override_users_crud(mock_user_crud):

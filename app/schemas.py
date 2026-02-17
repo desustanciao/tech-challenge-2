@@ -9,7 +9,7 @@ class ItemBase(BaseModel):
 class Item(ItemBase):
     id: int
 
-    model_config = { "from_attributes": True}
+    model_config = {"from_attributes": True}
 
 
 class UserBase(BaseModel):
@@ -32,6 +32,4 @@ class UserUpdate(BaseModel):
     password: str | None = Field(None, min_length=8)
     jwt_token: str | None = Field(None)
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}

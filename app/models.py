@@ -6,12 +6,14 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
+
 class Item(Base):
     __tablename__ = "items"
 
     id = mapped_column(Integer, primary_key=True, index=True)
     name = mapped_column(String, nullable=False, index=True)
     description = mapped_column(String)
+
 
 class User(Base):
     __tablename__ = "users"

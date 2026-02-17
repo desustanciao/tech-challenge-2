@@ -47,6 +47,7 @@ app.middleware("http")(prometheus_middleware)
 metrics_app = make_asgi_app()
 app.mount("/metrics", metrics_app)
 
+
 @app.get("/health/live")
 async def liveness():
     return {"status": "alive"}
@@ -57,8 +58,11 @@ async def readiness(db: AsyncSession = Depends(get_db)):
     await db.execute(text("SELECT 1"))
     return {"status": "ready"}
 
+
 @app.get("/items", response_model=list[schemas.Item])
-async def read_items(items: ItemsCRUD = Depends(get_items_crud), current_user: User = Depends(get_current_user)):
+async def read_items(
+    items: ItemsCRUD = Depends(get_items_crud), current_user: User = Depends(get_current_user)
+):
     return await items.get_items()
 
 
@@ -72,8 +76,11 @@ async def get_token(username: str, user_crud: UserCRUD = Depends(get_user_crud))
         "token_type": "bearer",
     }
 
+
 @app.get("/get_cookie")
-async def get_cookie(response: Response, username: str, user_crud: UserCRUD = Depends(get_user_crud)):
+async def get_cookie(
+    response: Response, username: str, user_crud: UserCRUD = Depends(get_user_crud)
+):
     user = await user_crud.get_by_username(username)
     token = await user_crud.generate_token_and_update_user(user)
 
@@ -88,11 +95,12 @@ async def get_cookie(response: Response, username: str, user_crud: UserCRUD = De
     )
     return {"message": "Login successful"}
 
+
 @app.get("/logout")
 async def logout(
     response: Response,
     current_user: User = Depends(get_current_user),
-    user_crud: UserCRUD = Depends(get_user_crud)
+    user_crud: UserCRUD = Depends(get_user_crud),
 ):
     if current_user:
         await user_crud.remove_user_token(current_user)

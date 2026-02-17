@@ -1,4 +1,3 @@
-
 from aws_cdk import (
     CfnOutput,
     Duration,
@@ -49,13 +48,10 @@ class FastAPIInfrastructureStack(Stack):
                     cidr_mask=24,
                 ),
                 ec2.SubnetConfiguration(
-                    name="Private",
-                    subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
-                    cidr_mask=24
-                )
+                    name="Private", subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=24
+                ),
             ],
         )
-
 
         # Build Docker image from local app directory
         image_asset = ecr_assets.DockerImageAsset(
@@ -63,9 +59,9 @@ class FastAPIInfrastructureStack(Stack):
             "FastAPIDockerImage",
             directory="./../",  # path to Dockerfile
             asset_name="FastAPIDockerImage",
-            exclude=["*test*","cdk/*",".git*",".venv/*"],
+            exclude=["*test*", "cdk/*", ".git*", ".venv/*"],
             ignore_mode=IgnoreMode.DOCKER,
-            target="production"
+            target="production",
         )
 
         db_secret = secretsmanager.Secret(
@@ -174,7 +170,7 @@ class FastAPIInfrastructureStack(Stack):
                 secrets={
                     "DATABASE_USER": ecs.Secret.from_secrets_manager(db_secret, "username"),
                     "DATABASE_PASSWORD": ecs.Secret.from_secrets_manager(db_secret, "password"),
-                    "SECRET_KEY": ecs.Secret.from_secrets_manager(secret_key_secret)
+                    "SECRET_KEY": ecs.Secret.from_secrets_manager(secret_key_secret),
                 },
                 log_driver=ecs.LogDriver.aws_logs(
                     stream_prefix="fastapi",

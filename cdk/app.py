@@ -8,8 +8,8 @@ FastAPIInfrastructureStack(
     app,
     "FastAPIInfrastructureStack",
     env=cdk.Environment(
-    account=app.node.try_get_context("account"),
-    region=app.node.try_get_context("region"),
+        account=app.node.try_get_context("account"),
+        region=app.node.try_get_context("region"),
     ),
 )
 
