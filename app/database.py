@@ -1,3 +1,5 @@
+from collections.abc import AsyncGenerator
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -34,7 +36,7 @@ def get_sessionmaker(engine: AsyncEngine = Depends(get_engine)) -> async_session
     return async_sessionmaker(engine, expire_on_commit=False)
 
 
-async def get_db(sessionmaker: async_sessionmaker = Depends(get_sessionmaker)) -> AsyncSession:
+async def get_db(sessionmaker: async_sessionmaker = Depends(get_sessionmaker)) -> AsyncGenerator[AsyncSession]:
     """
     return session instance
     :param sessionmaker:

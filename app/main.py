@@ -18,7 +18,7 @@ from app.models import Base, User
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    settings = get_settings()  # ✅ call directly, no Depends
+    settings = get_settings()
 
     sslmode = "disable" if settings.LOCAL else "require"
     db_url = (
@@ -60,9 +60,7 @@ async def readiness(db: AsyncSession = Depends(get_db)):
 
 
 @app.get("/items", response_model=list[schemas.Item])
-async def read_items(
-    items: ItemsCRUD = Depends(get_items_crud), current_user: User = Depends(get_current_user)
-):
+async def read_items(items: ItemsCRUD = Depends(get_items_crud), current_user: User = Depends(get_current_user)):
     return await items.get_items()
 
 
@@ -78,9 +76,7 @@ async def get_token(username: str, user_crud: UserCRUD = Depends(get_user_crud))
 
 
 @app.get("/get_cookie")
-async def get_cookie(
-    response: Response, username: str, user_crud: UserCRUD = Depends(get_user_crud)
-):
+async def get_cookie(response: Response, username: str, user_crud: UserCRUD = Depends(get_user_crud)):
     user = await user_crud.get_by_username(username)
     token = await user_crud.generate_token_and_update_user(user)
 
