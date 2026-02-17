@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Response
-from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import make_asgi_app
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -12,6 +12,7 @@ from app.database import get_db
 from app.dependencies import get_current_user, get_items_crud, get_user_crud
 from app.init_db import init_db
 from app.logging_config import configure_logging
+from app.metrics.prometheus import prometheus_middleware
 from app.models import Base, User
 
 
@@ -42,8 +43,9 @@ app = FastAPI(title="challenge", lifespan=lifespan)
 
 configure_logging()
 
-Instrumentator().instrument(app).expose(app)
-
+app.middleware("http")(prometheus_middleware)
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 @app.get("/health/live")
 async def liveness():
@@ -54,7 +56,6 @@ async def liveness():
 async def readiness(db: AsyncSession = Depends(get_db)):
     await db.execute(text("SELECT 1"))
     return {"status": "ready"}
-
 
 @app.get("/items", response_model=list[schemas.Item])
 async def read_items(items: ItemsCRUD = Depends(get_items_crud), current_user: User = Depends(get_current_user)):
