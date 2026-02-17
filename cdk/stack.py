@@ -47,9 +47,7 @@ class FastAPIInfrastructureStack(Stack):
                     subnet_type=ec2.SubnetType.PUBLIC,
                     cidr_mask=24,
                 ),
-                ec2.SubnetConfiguration(
-                    name="Private", subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=24
-                ),
+                ec2.SubnetConfiguration(name="Private", subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=24),
             ],
         )
 
@@ -191,9 +189,9 @@ class FastAPIInfrastructureStack(Stack):
         )
 
         fargate_service.target_group.configure_health_check(
-            path="/health/live",
+            path="/health/ready",
             healthy_http_codes="200",
-            interval=Duration.seconds(30),
+            interval=Duration.seconds(60),
         )
 
         CfnOutput(
