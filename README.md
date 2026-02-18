@@ -35,6 +35,7 @@ This project implements a backend API using **FastAPI**, designed to be scalable
 
 ### Architecture Diagram
 
+## Network Diagram
 ```mermaid
 flowchart TD
   Client["Client / Browser"] -->|HTTP/HTTPS| App["FastAPI App (Public Subnet)"]
@@ -48,6 +49,51 @@ flowchart TD
   end
   App --> IGW
 ```
+
+## Application Diagram
+```mermaid
+flowchart TD
+
+    %% Clients
+    A[Client<br/>Browser / API Consumer]
+
+    %% API Layer
+    B[FastAPI Application<br/>app.main]
+    C[Routers<br/>Health / Auth / Items / Metrics]
+    D[Middleware<br/>Auth / Logging / Metrics]
+
+    %% Business Layer
+    E[Service Layer<br/>Business Logic]
+    F[Security Module<br/>JWT Handling]
+
+    %% Data Layer
+    G[Repository Layer<br/>SQLAlchemy Async]
+    H[(PostgreSQL Database)]
+
+    %% Observability
+    I[Prometheus Metrics Endpoint]
+    
+    %% Infrastructure
+    J[Docker Container]
+    K[AWS Infrastructure<br/>Defined with CDK]
+
+    %% Flows
+    A -->|HTTP Requests| B
+    B --> C
+    B --> D
+    C --> E
+    E --> G
+    G --> H
+
+    C --> F
+    F --> C
+
+    D --> I
+
+    B --> J
+    J --> K
+```
+
 ## Tech Stack
 | Category       | Technology              |
 | -------------- | ----------------------- |
@@ -88,3 +134,4 @@ Run the application
 ```bash
 uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
