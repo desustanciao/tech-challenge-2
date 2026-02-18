@@ -1,0 +1,67 @@
+[project]
+name = "fastapi-aws-app"
+version = "0.1.0"
+description = "Production-grade FastAPI app deployed on AWS"
+requires-python = ">=3.12"
+
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: FastAPI",
+    "Framework :: AsyncIO",
+]
+
+dependencies = [
+    "fastapi>=0.129",
+    "uvicorn[standard]>=0.41",
+    "sqlalchemy[asyncio]>=2.0",
+    "psycopg[binary]>=3.3",
+    "alembic>=1.13",
+    "PyJWT >=2.11.0",
+    "passlib[bcrypt]>=1.7",
+    "pydantic[email]>=2.12",
+    "pydantic-settings>=2.13",
+    "structlog>=24.1",
+    "prometheus-client>=0.24",
+    "pre-commit>=4.5.1"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",
+    "ruff>=0.15",
+    "pre-commit>=4.5",
+    "aws-cdk-lib==2.238.0",
+    "constructs>=10.0.0,<11.0.0",
+    "aiosqlite>=0.22"
+]
+
+[tool.ruff]
+# Maximum line length for code
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+# Enable commonly used rule sets
+# E = pycodestyle (PEP8)
+# F = pyflakes (unused variables, undefined names)
+# I = isort (import order)
+# B = bugbear (common bug patterns)
+# UP = pyupgrade (modern syntax enforcement)
+select = ["E", "F", "I", "B", "UP"]
+ignore = [
+    "E501",
+    "B008"
+]
+
+# Formatting options
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]
