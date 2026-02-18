@@ -63,9 +63,16 @@ flowchart TD
 
 ## Running the Application with uv
 
-
+Prepare an .env file with the following data:
+````txt
+DATABASE_USER=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_HOST=localhost
+DATABASE_NAME=appdb
+LOCAL=true
+SECRET_KEY=
+````
 If you don’t have uv installed:
-
 ```bash
 pip install uv
 ```
