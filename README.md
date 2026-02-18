@@ -1,4 +1,4 @@
-# tech-challenge-2
+# tech-challenge
 
 A **FastAPI application deployed on AWS** that exposes REST endpoints, health checks, metrics, authentication, and item access-structured with a layered architecture, database integration, and observability tooling.
 
