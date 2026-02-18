@@ -5,15 +5,16 @@ from prometheus_client import make_asgi_app
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app import schemas
 from app.config import get_settings
-from app.crud import ItemsCRUD, UserCRUD
-from app.database import get_db
-from app.dependencies import get_current_user, get_items_crud, get_user_crud
-from app.init_db import init_db
+from app.db.crud.users import UserCRUD
+from app.db.database import get_db
+from app.db.init_db import init_db
+from app.db.models.base import Base
+from app.db.models.users import User
+from app.dependencies import get_current_user, get_user_crud
+from app.items.router import items_router
 from app.logging_config import configure_logging
 from app.metrics.prometheus import prometheus_middleware
-from app.models import Base, User
 
 
 @asynccontextmanager
@@ -59,11 +60,6 @@ async def readiness(db: AsyncSession = Depends(get_db)):
     return {"status": "ready"}
 
 
-@app.get("/items", response_model=list[schemas.Item])
-async def read_items(items: ItemsCRUD = Depends(get_items_crud), current_user: User = Depends(get_current_user)):
-    return await items.get_items()
-
-
 @app.post("/get_token")
 async def get_token(username: str, user_crud: UserCRUD = Depends(get_user_crud)):
     user = await user_crud.get_by_username(username)
@@ -104,3 +100,6 @@ async def logout(
     response.delete_cookie("access_token")
 
     return {"message": "Logged out"}
+
+
+app.include_router(items_router)

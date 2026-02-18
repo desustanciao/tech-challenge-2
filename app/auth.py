@@ -41,9 +41,7 @@ async def get_token_from_request(
 
     if authorization:
         if not authorization.startswith("Bearer "):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid authorization header"
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid authorization header")
         token = authorization[len("Bearer ") :]
 
     elif access_token:
@@ -66,9 +64,7 @@ def create_jwt(
     :return:
     """
 
-    expire = datetime.datetime.now(datetime.UTC) + timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+    expire = datetime.datetime.now(datetime.UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     payload = {
         "sub": username,

@@ -60,3 +60,24 @@ flowchart TD
 | Deployment     | Docker, AWS CDK         |
 | Testing        | Pytest + pytest-asyncio |
 | Linting        | Ruff                    |
+
+## Running the Application with uv
+
+
+If you don’t have uv installed:
+
+```bash
+pip install uv
+```
+Or via the official installer:
+```bash
+curl -Ls https://astral.sh/uv/install.sh | sh
+```
+Install dependencies
+```bash
+uv sync
+```
+Run the application
+```bash
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```

@@ -8,9 +8,11 @@ from sqlalchemy.pool import NullPool
 
 from app.auth import get_password_hash
 from app.config import Settings
-from app.database import get_db
+from app.db.database import get_db
+from app.db.models.base import Base
+from app.db.models.items import Item
+from app.db.models.users import User
 from app.main import app
-from app.models import Base, Item, User
 
 
 @pytest.fixture(scope="session")

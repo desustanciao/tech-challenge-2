@@ -5,13 +5,9 @@ from prometheus_client import Counter, Histogram
 
 REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests", ["method", "path", "status"])
 
-REQUEST_LATENCY = Histogram(
-    "http_request_duration_seconds", "HTTP request latency", ["method", "path"]
-)
+REQUEST_LATENCY = Histogram("http_request_duration_seconds", "HTTP request latency", ["method", "path"])
 
-REQUEST_EXCEPTIONS = Counter(
-    "http_request_exceptions_total", "Total HTTP exceptions", ["method", "path", "exception"]
-)
+REQUEST_EXCEPTIONS = Counter("http_request_exceptions_total", "Total HTTP exceptions", ["method", "path", "exception"])
 
 
 async def prometheus_middleware(request: Request, call_next):
